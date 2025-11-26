@@ -23,7 +23,7 @@ ${formData.message}
     `.trim()
 
     // Número de WhatsApp (mismo que usamos para pedidos)
-    const whatsappNumber = "573225097180"
+    const whatsappNumber = "573104994168"
     const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
     
     // Abrir WhatsApp en nueva ventana

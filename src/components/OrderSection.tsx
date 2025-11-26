@@ -50,7 +50,7 @@ export default function OrderSection() {
 
     // Enviar a WhatsApp
     const whatsappMessage = newOrder.toWhatsAppMessage();
-    const whatsappNumber = "573225097180";
+    const whatsappNumber = "573104994168"; // Número de WhatsApp para pedidos
     const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappURL, "_blank");
 
