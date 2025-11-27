@@ -10,15 +10,40 @@ export default function OrderSection() {
     phone: "",
   });
 
+  const [errors, setErrors] = useState({
+    phone: "",
+  });
+
   const [order, setOrder] = useState<Order | null>(null);
   const [showOrder, setShowOrder] = useState(false);
 
+  // Validar número de celular colombiano (10 dígitos, empezando con 3)
+  const validatePhone = (phone: string): boolean => {
+    // Remover espacios, guiones y otros caracteres
+    const cleanPhone = phone.replace(/\D/g, "");
+    // Validar que tenga 10 dígitos y empiece con 3 (celular colombiano)
+    return /^3\d{9}$/.test(cleanPhone);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Validar teléfono en tiempo real
+    if (name === "phone") {
+      const cleanValue = value.replace(/\D/g, "");
+      if (cleanValue && !validatePhone(value)) {
+        setErrors({
+          phone: "Por favor ingresa un número de celular válido (10 dígitos, empezando con 3). Ej: 3001234567",
+        });
+      } else {
+        setErrors({ phone: "" });
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,6 +53,17 @@ export default function OrderSection() {
       alert("Por favor agrega al menos un producto al pedido");
       return;
     }
+
+    // Validar teléfono antes de enviar
+    if (!validatePhone(formData.phone)) {
+      setErrors({
+        phone: "Por favor ingresa un número de celular válido (10 dígitos, empezando con 3). Ej: 3001234567",
+      });
+      return;
+    }
+
+    // Limpiar errores si todo está bien
+    setErrors({ phone: "" });
 
     // Convertir productos con cantidad a productos simples para el modelo Order
     const productsForOrder = selectedProducts.flatMap(item =>
@@ -113,7 +149,7 @@ export default function OrderSection() {
                   htmlFor="phone"
                   className="block text-sm uppercase tracking-wider text-muted-foreground mb-2"
                 >
-                  Teléfono
+                  Teléfono (Celular)
                 </label>
                 <input
                   type="tel"
@@ -122,9 +158,17 @@ export default function OrderSection() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                  placeholder="300 1234567"
+                  maxLength={10}
+                  className={`w-full px-4 py-3 bg-background border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                    errors.phone 
+                      ? "border-destructive focus:ring-destructive" 
+                      : "border-border focus:ring-primary"
+                  }`}
+                  placeholder="3001234567"
                 />
+                {errors.phone && (
+                  <p className="mt-2 text-sm text-destructive">{errors.phone}</p>
+                )}
               </div>
 
               {/* Botón de envío */}

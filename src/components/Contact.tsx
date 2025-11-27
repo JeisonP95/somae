@@ -8,8 +8,30 @@ export default function Contact() {
     message: "",
   })
 
+  const [errors, setErrors] = useState({
+    email: "",
+  })
+
+  // Validar email con dominio válido
+  const validateEmail = (email: string): boolean => {
+    // Regex para validar email con dominios comunes
+    const emailRegex = /^[^\s@]+@(gmail|hotmail|outlook|yahoo|icloud|protonmail|live|msn|aol|mail|yandex|zoho|gmx|tutanota|fastmail)\.(com|co|net|org|edu|gov|info|io|me|es|mx|ar|cl|pe|ec|ve)$/i
+    return emailRegex.test(email)
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validar email antes de enviar
+    if (!validateEmail(formData.email)) {
+      setErrors({
+        email: "Por favor ingresa un email válido con un dominio reconocido (ej: @gmail.com, @hotmail.com, etc.)",
+      })
+      return
+    }
+
+    // Limpiar errores si todo está bien
+    setErrors({ email: "" })
     
     // Crear mensaje formateado para WhatsApp
     const whatsappMessage = `
@@ -44,10 +66,23 @@ ${formData.message}
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
+
+    // Validar email en tiempo real
+    if (name === "email") {
+      if (value && !validateEmail(value)) {
+        setErrors({
+          email: "Por favor ingresa un email válido con un dominio reconocido (ej: @gmail.com, @hotmail.com, etc.)",
+        })
+      } else {
+        setErrors({ email: "" })
+      }
+    }
   }
 
   return (
@@ -186,9 +221,16 @@ ${formData.message}
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                  placeholder="tu@email.com"
+                  className={`w-full px-4 py-3 bg-background border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                    errors.email 
+                      ? "border-destructive focus:ring-destructive" 
+                      : "border-border focus:ring-primary"
+                  }`}
+                  placeholder="tu@gmail.com"
                 />
+                {errors.email && (
+                  <p className="mt-2 text-sm text-destructive">{errors.email}</p>
+                )}
               </div>
 
               <div>
